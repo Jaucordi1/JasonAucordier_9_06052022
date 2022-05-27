@@ -23,8 +23,15 @@ const rows = (data) => {
   return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
 }
 
-export default ({ data: bills, loading, error }) => {
-  
+const sortBills = (bills) => {
+  return bills.sort((a, b) => {
+    if (a.date > b.date) return -1
+    return Number(a.date < b.date)
+  })
+};
+
+export default ({ data: bills = [], loading, error }) => {
+
   const modal = () => (`
     <div class="modal fade" id="modaleFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -47,7 +54,7 @@ export default ({ data: bills, loading, error }) => {
   } else if (error) {
     return ErrorPage(error)
   }
-  
+
   return (`
     <div class='layout'>
       ${VerticalLayout(120)}
@@ -69,7 +76,7 @@ export default ({ data: bills, loading, error }) => {
               </tr>
           </thead>
           <tbody data-testid="tbody">
-            ${rows(bills)}
+            ${rows(sortBills(bills))}
           </tbody>
           </table>
         </div>
