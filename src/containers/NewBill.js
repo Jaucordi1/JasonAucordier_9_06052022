@@ -3,13 +3,14 @@ import Logout from "./Logout.js"
 
 export default class NewBill {
   constructor({ document, onNavigate, store, localStorage }) {
+    this.allowedFileExtentions = ["jpg", "jpeg", "png"]
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
-    const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
-    formNewBill.addEventListener("submit", this.handleSubmit)
-    const file = this.document.querySelector(`input[data-testid="file"]`)
-    file.addEventListener("change", this.handleChangeFile)
+    this.fileInput = this.document.querySelector(`input[data-testid="file"]`)
+    this.formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
+    this.formNewBill.addEventListener("submit", this.handleSubmit)
+    this.fileInput.addEventListener("change", this.handleChangeFile)
     this.fileUrl = null
     this.fileName = null
     this.billId = null
@@ -17,7 +18,14 @@ export default class NewBill {
   }
   handleChangeFile = e => {
     e.preventDefault()
-    const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
+    const file = this.fileInput.files[0]
+    if (!this.isFileAllowed(file)) {
+      this.fileInput.setCustomValidity("Seul les images jp(e)g et png sont prises en charges.")
+      return
+    } else {
+      this.fileInput.setCustomValidity("")
+    }
+
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
     const formData = new FormData()
@@ -59,6 +67,11 @@ export default class NewBill {
     }
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
+  }
+
+  isFileAllowed = (file) => {
+    if (!file.type.startsWith("image/")) return false
+    return this.allowedFileExtentions.includes(file.name.split(".").pop());
   }
 
   // not need to cover this function by tests
