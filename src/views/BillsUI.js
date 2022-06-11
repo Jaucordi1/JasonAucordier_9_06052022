@@ -42,8 +42,7 @@ export default ({ data: bills = [], loading, error }) => {
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">
-          </div>
+          <div class="modal-body"></div>
         </div>
       </div>
     </div>
