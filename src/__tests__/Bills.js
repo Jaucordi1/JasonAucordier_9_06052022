@@ -3,7 +3,7 @@
  */
 
 import "@testing-library/jest-dom";
-import { screen, waitFor, fireEvent, queryByAttribute, getByTestId } from "@testing-library/dom";
+import { screen, waitFor, fireEvent } from "@testing-library/dom";
 import BillsUI                        from "../views/BillsUI.js";
 import { ROUTES_PATH }                from "../constants/routes.js";
 import { localStorageMock }           from "../__mocks__/localStorage.js";
@@ -136,26 +136,16 @@ describe("Given I am a user connected as Employee", () => {
     });
     describe("When I click on an eye icon", () => {
       test("Modal should open", async () => {
-        const root = await setup();
+        await setup();
+        jQuery.fn.modal = jest.fn();
+
+        // Go to Bills page
         window.onNavigate(ROUTES_PATH.Bills);
-        // Page loaded
 
         // At least 1 bill
-        const eyeIcons = screen.getAllByTestId("icon-eye");
-        const icon = eyeIcons[0];
-
-        // Modal
-        const modal = queryByAttribute("id", root, "modaleFile");
-        const modalBody = queryByAttribute("class", modal, "modal-body");
-
-        expect(modal).not.toBeVisible();
-        // fireEvent["click"](icon);
-        // expect(modal).toBeVisible();
-
-        // Assertions
-/*        expect(modalBody.innerHTML.trim()).toBe("");
-        fireEvent["click"](icon);
-        expect(modalBody.innerHTML.trim()).not.toBe("");*/
+        const eyeIcon = screen.getAllByTestId("icon-eye")[0];
+        fireEvent["click"](eyeIcon);
+        expect(jQuery.fn.modal).toHaveBeenCalledWith("show");
       });
     });
   });
