@@ -46,80 +46,8 @@ describe("Given I am connected as an employee", () => {
       Object.keys(elements).forEach((key) => expect(elements[key]).toBeTruthy());
     });
 
-    // File upload
-    describe("And I choose an image file", () => {
-      describe("If image extension is allowed", () => {
-        test("Then store.bills().create() should be called", async () => {
-          await setup();
-          window.onNavigate(ROUTES_PATH.NewBill);
-
-          // Spy
-          const bills = mockStore.bills();
-          jest.spyOn(bills, "create");
-
-          // Elements
-          const fileInputEl = screen.getByTestId("file");
-
-          const now  = new Date();
-          const file = new File([], "Test.png", {
-            type: "image/png",
-            lastModified: now.getTime(),
-          });
-
-          // Choose a file
-          fireEvent["change"](fileInputEl, {
-            target: {
-              ...fileInputEl,
-              files: [file]
-            }
-          });
-          await waitFor(() => process.nextTick);
-
-          // Assertions
-          expect(bills.create).toBeCalled();
-          expect(window.location.hash).toBe(ROUTES_PATH.NewBill);
-
-          jest.restoreAllMocks();
-        });
-
-        describe("If api throws an error", () => {
-          test("Then console.error should be called", async () => {
-            await setup();
-            window.onNavigate(ROUTES_PATH.NewBill);
-
-            const bills = mockStore.bills();
-            jest.spyOn(global.console, "error");
-            jest.spyOn(bills, "create").mockImplementation(() => {
-              return Promise.reject(/Erreur 404/);
-            });
-
-            // Helpers
-            // Elements
-            const fileInputEl = screen.getByTestId("file");
-
-            const now  = new Date();
-            const file = new File([], "Test.png", {
-              type: "image/png",
-              lastModified: now.getTime(),
-            });
-
-            // Choose a file
-            fireEvent["change"](fileInputEl, {
-              target: {
-                ...fileInputEl,
-                files: [file]
-              }
-            });
-            await waitFor(() => process.nextTick);
-
-            // Should have called store.bills().create AND NOT being redirected to Bills page
-            expect(bills.create).toBeCalled();
-
-            jest.restoreAllMocks();
-          });
-        });
-      });
-      describe("If image extension is NOT allowed", () => {
+    describe("When I choose a file", () => {
+      describe("And it is NOT an image file", () => {
         test("Then store.bills().create() should NOT be called", async () => {
           await setup();
           window.onNavigate(ROUTES_PATH.NewBill);
@@ -132,8 +60,8 @@ describe("Given I am connected as an employee", () => {
           const fileInputEl = screen.getByTestId("file");
 
           const now  = new Date();
-          const file = new File([], "Test.gif", {
-            type: "image/gif",
+          const file = new File([], "Test.pdf", {
+            type: "application/pdf",
             lastModified: now.getTime(),
           });
 
@@ -153,45 +81,120 @@ describe("Given I am connected as an employee", () => {
           jest.restoreAllMocks();
         });
       });
-    });
-    describe("And I choose a non-image file", () => {
-      test("Then store.bills().create() should NOT be called", async () => {
-        await setup();
-        window.onNavigate(ROUTES_PATH.NewBill);
 
-        // Spy
-        const bills = mockStore.bills();
-        jest.spyOn(bills, "create");
+      describe("And it is an image file", () => {
+        describe("If image extension is NOT allowed", () => {
+          test("Then store.bills().create() should NOT be called & user should stay on NewBill page", async () => {
+            await setup();
+            window.onNavigate(ROUTES_PATH.NewBill);
 
-        // Elements
-        const fileInputEl = screen.getByTestId("file");
+            // Spy
+            const bills = mockStore.bills();
+            jest.spyOn(bills, "create");
 
-        const now  = new Date();
-        const file = new File([], "Test.pdf", {
-          type: "application/pdf",
-          lastModified: now.getTime(),
+            // Elements
+            const fileInputEl = screen.getByTestId("file");
+
+            const now  = new Date();
+            const file = new File([], "Test.gif", {
+              type: "image/gif",
+              lastModified: now.getTime(),
+            });
+
+            // Choose a file
+            fireEvent["change"](fileInputEl, {
+              target: {
+                ...fileInputEl,
+                files: [file]
+              }
+            });
+            await waitFor(() => process.nextTick);
+
+            // Assertions
+            expect(bills.create).not.toBeCalled();
+            expect(window.location.hash).toBe(ROUTES_PATH.NewBill);
+
+            jest.restoreAllMocks();
+          });
         });
 
-        // Choose a file
-        fireEvent["change"](fileInputEl, {
-          target: {
-            ...fileInputEl,
-            files: [file]
-          }
+        describe("If image extension is allowed", () => {
+          test("Then store.bills().create() should be called & user should stay on NewBill page", async () => {
+            await setup();
+            window.onNavigate(ROUTES_PATH.NewBill);
+
+            // Spy
+            const bills = mockStore.bills();
+            jest.spyOn(bills, "create");
+
+            // Elements
+            const fileInputEl = screen.getByTestId("file");
+
+            const now  = new Date();
+            const file = new File([], "Test.png", {
+              type: "image/png",
+              lastModified: now.getTime(),
+            });
+
+            // Choose a file
+            fireEvent["change"](fileInputEl, {
+              target: {
+                ...fileInputEl,
+                files: [file]
+              }
+            });
+            await waitFor(() => process.nextTick);
+
+            // Assertions
+            expect(bills.create).toBeCalled();
+            expect(window.location.hash).toBe(ROUTES_PATH.NewBill);
+
+            jest.restoreAllMocks();
+          });
+
+          describe("If api throws an error", () => {
+            test("Then console.error should be called", async () => {
+              await setup();
+              window.onNavigate(ROUTES_PATH.NewBill);
+
+              const bills = mockStore.bills();
+              jest.spyOn(global.console, "error");
+              jest.spyOn(bills, "create").mockImplementation(() => {
+                return Promise.reject(/Erreur 404/);
+              });
+
+              // Helpers
+              // Elements
+              const fileInputEl = screen.getByTestId("file");
+
+              const now  = new Date();
+              const file = new File([], "Test.png", {
+                type: "image/png",
+                lastModified: now.getTime(),
+              });
+
+              // Choose a file
+              fireEvent["change"](fileInputEl, {
+                target: {
+                  ...fileInputEl,
+                  files: [file]
+                }
+              });
+              await waitFor(() => process.nextTick);
+
+              // Should have called store.bills().create AND NOT being redirected to Bills page
+              expect(bills.create).toBeCalled();
+
+              jest.restoreAllMocks();
+            });
+          });
         });
-        await waitFor(() => process.nextTick);
-
-        // Assertions
-        expect(bills.create).not.toBeCalled();
-        expect(window.location.hash).toBe(ROUTES_PATH.NewBill);
-
-        jest.restoreAllMocks();
       });
     });
 
     // Form validation
-    describe("And I DON'T fill required form fields", () => {
-      test("Then submit will do nothing", async () => {
+    describe("When I submit form without filling required form fields", () => {
+      test("Then nothing should happen", async () => {
         await setup();
         window.onNavigate(ROUTES_PATH.NewBill);
 
@@ -241,16 +244,9 @@ describe("Given I am connected as an employee", () => {
         await waitFor(() => process.nextTick);
         expect(window.location.hash).toBe(ROUTES_PATH.Bills);
       });
-    });
-  });
-});
 
-// test d'intégration POST
-describe("Given I am connected as an employee", () => {
-  describe("When I am on NewBill Page", () => {
-    describe("And I DO fill required form fields", () => {
       describe("If API throws an error", () => {
-        test("Then submit should NOT redirect on Bills page", async () => {
+        test("Then bills.update should be called & should NOT redirect on Bills page", async () => {
           await setup();
           window.onNavigate(ROUTES_PATH.NewBill);
 
